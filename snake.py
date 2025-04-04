@@ -112,14 +112,20 @@ class Snake:
         self, moveDirection: list[int]
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
         nextSnakePosition: numpy.ndarray = (
-            self.snakeBodyLocation[:, 0, :] + DIRECTIONS[moveDirection]
-        )
-        snakeHitWall: numpy.ndarray = numpy.any(
-            nextSnakePosition[:, 0] % self.gameDimensions == 0, axis=1
-        )
-        snakeHitSelf: numpy.ndarray = self.findSnakeHitSelf()
+            self.snakeBodyLocation[:, 0] + DIRECTIONS[moveDirection]
+        ).reshape(self.numberOfGames, 1, 2)
+
+        snakeHitWall: numpy.ndarray = (
+            nextSnakePosition[:, 0]
+            % [self.gameDimensions[0] - 1, self.gameDimensions[1] - 1]
+            == 0
+        ).any(-1)
+
+        snakeHitSelf: numpy.ndarray = self.findSnakeHitSelf(nextSnakePosition)
         gameEnded: numpy.ndarray = numpy.bitwise_or(snakeHitWall, snakeHitSelf)
-        snakeHitFood: numpy.ndarray = numpy.any(nextSnakePosition[:, 0] == 0, axis=1)
+        snakeHitFood: numpy.ndarray = (
+            nextSnakePosition[:, 0] == self.foodLocation[:]
+        ).all(-1)
 
         self.removeEndedGames(gameEnded)
 
@@ -129,14 +135,12 @@ class Snake:
         self.snakeBodyLocation = self.snakeBodyLocation[~gameEnded]
         self.foodLocation = self.foodLocation[~gameEnded]
 
-    def findSnakeHitSelf(self) -> numpy.ndarray:
-        firstElementExpanded: numpy.ndarray = self.snakeBodyLocation[:, 0].reshape(
+    def findSnakeHitSelf(self, nextSnakePosition: numpy.ndarray) -> numpy.ndarray:
+        firstElementExpanded: numpy.ndarray = nextSnakePosition[:, 0].reshape(
             self.snakeBodyLocation.shape[0], 1, self.snakeBodyLocation.shape[2]
         )
         bodyComparison: numpy.ndarray = (
             firstElementExpanded == self.snakeBodyLocation[:, 1:]
         )
-        snakeHitSelf: numpy.ndarray = numpy.any(
-            numpy.all(bodyComparison, axis=2), axis=1
-        )
+        snakeHitSelf: numpy.ndarray = bodyComparison.all(-1).any(-1)
         return snakeHitSelf
