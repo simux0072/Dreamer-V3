@@ -1,6 +1,18 @@
 import numpy
 
 
+# Up, Right, Down, Left
+DIRECTIONS = numpy.array(
+    [
+        [-1, 0],
+        [0, 1],
+        [1, 0],
+        [0, -1],
+    ],
+    dtype=numpy.int8,
+)
+
+
 def generateAllPossibleCoordinates(dimensions: list[int]):
     xCoordinates: numpy.ndarray = numpy.linspace(
         1, dimensions[0] - 2, dimensions[0] - 2
@@ -14,18 +26,6 @@ def generateAllPossibleCoordinates(dimensions: list[int]):
     ).T.reshape(-1, 2)
 
     return possibleCoordinates
-
-
-# Up, Right, Down, Left
-DIRECTIONS = numpy.array(
-    [
-        [-1, 0],
-        [0, 1],
-        [1, 0],
-        [0, -1],
-    ],
-    dtype=numpy.int8,
-)
 
 
 class Snake:
@@ -55,6 +55,8 @@ class Snake:
             ),
             dtype=numpy.int16,
         )
+
+        self.currentBodyEndIndex = numpy.zeros((self.numberOfGames))
 
         self.generateRandomLocations(resetGame=True)
 
@@ -111,29 +113,64 @@ class Snake:
     def moveSnakeBody(
         self, moveDirection: list[int]
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
+
         nextSnakePosition: numpy.ndarray = (
             self.snakeBodyLocation[:, 0] + DIRECTIONS[moveDirection]
         ).reshape(self.numberOfGames, 1, 2)
 
-        snakeHitWall: numpy.ndarray = (
-            nextSnakePosition[:, 0]
-            % [self.gameDimensions[0] - 1, self.gameDimensions[1] - 1]
-            == 0
-        ).any(-1)
+        gameEndMask: numpy.ndarray = self.generateGameEndMask(nextSnakePosition)
 
-        snakeHitSelf: numpy.ndarray = self.findSnakeHitSelf(nextSnakePosition)
-        gameEnded: numpy.ndarray = numpy.bitwise_or(snakeHitWall, snakeHitSelf)
         snakeHitFood: numpy.ndarray = (
             nextSnakePosition[:, 0] == self.foodLocation[:]
         ).all(-1)
 
-        self.removeEndedGames(gameEnded)
+        self.removeEndedGames(gameEndMask)
 
-        return gameEnded, snakeHitFood
+        nextSnakePosition: numpy.ndarray = nextSnakePosition[~gameEndMask]
+        validSnakeHitFoodMask: numpy.ndarray = snakeHitFood[~gameEndMask]
+
+        self.updateSnakeBodyCoordinates(nextSnakePosition, validSnakeHitFoodMask)
+
+        return gameEndMask, snakeHitFood
+
+    def updateSnakeBodyCoordinates(
+        self,
+        nextSnakePosition: numpy.ndarray,
+        validSnakeHitFoodMask: numpy.ndarray,
+    ) -> None:
+
+        self.snakeBodyLocation[
+            numpy.arange(validSnakeHitFoodMask.shape[0]), self.currentBodyEndIndex
+        ] = 0
+
+        self.currentBodyEndIndex += validSnakeHitFoodMask
+        self.snakeBodyLocation = numpy.hstack(
+            (nextSnakePosition, self.snakeBodyLocation[:, :-1, ...])
+        )
+
+    def generateGameEndMask(self, nextSnakePosition: numpy.ndarray) -> numpy.ndarray:
+        updatedGameDimensions: list[int] = [
+            self.gameDimensions[0] - 1,
+            self.gameDimensions[1] - 1,
+        ]
+        snakeHitWallEquality: numpy.ndarray = (
+            nextSnakePosition[:, 0] % updatedGameDimensions == 0
+        )
+
+        snakeHitWallMask: numpy.ndarray = snakeHitWallEquality.any(-1)
+
+        snakeHitSelfMask: numpy.ndarray = self.findSnakeHitSelf(nextSnakePosition)
+
+        gameEndMask: numpy.ndarray = numpy.bitwise_or(
+            snakeHitWallMask, snakeHitSelfMask
+        )
+
+        return gameEndMask
 
     def removeEndedGames(self, gameEnded: numpy.ndarray) -> None:
         self.snakeBodyLocation = self.snakeBodyLocation[~gameEnded]
         self.foodLocation = self.foodLocation[~gameEnded]
+        self.currentBodyEndIndex = self.currentBodyEndIndex[~gameEnded]
 
     def findSnakeHitSelf(self, nextSnakePosition: numpy.ndarray) -> numpy.ndarray:
         firstElementExpanded: numpy.ndarray = nextSnakePosition[:, 0].reshape(
