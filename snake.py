@@ -156,13 +156,16 @@ class Snake:
         validSnakeHitFoodMask: numpy.ndarray,
     ) -> None:
 
-        self.snakeBodyLocation[
-            numpy.arange(validSnakeHitFoodMask.shape[0]), self.currentBodyEndIndex
-        ] = [0, 0]
+        masked_indicies: numpy.ndarray = numpy.where(~validSnakeHitFoodMask)[0]
+        masked_currentBodyEndIndicies: numpy.ndarray = self.currentBodyEndIndex[
+            ~validSnakeHitFoodMask
+        ]
+
+        self.snakeBodyLocation[masked_indicies, masked_currentBodyEndIndicies] = [0, 0]
 
         self.currentBodyEndIndex += validSnakeHitFoodMask
         self.snakeBodyLocation = numpy.hstack(
-            (nextSnakePosition, self.snakeBodyLocation[:, :-1, ...])
+            (nextSnakePosition, self.snakeBodyLocation[:, :-1, :])
         )
 
     def generateGameEndMask(self, nextSnakePosition: numpy.ndarray) -> numpy.ndarray:
