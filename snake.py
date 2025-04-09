@@ -127,43 +127,41 @@ class Snake:
 
     def moveSnakeBody(
         self, moveDirection: list[int]
-    ) -> tuple[numpy.ndarray, numpy.ndarray]:
+    ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
 
         nextSnakePosition: numpy.ndarray = (
             self.snakeBodyLocation[:, 0] + DIRECTIONS[moveDirection]
         ).reshape(self.numberOfGames, 1, 2)
 
         gameEndMask: numpy.ndarray = self.generateGameEndMask(nextSnakePosition)
-        snakeHitFood: numpy.ndarray = (
+        snakeHitFoodMask: numpy.ndarray = (
             nextSnakePosition[:, 0] == self.foodLocation[:]
         ).all(-1)
 
-        if gameEndMask.all():
-            return gameEndMask, snakeHitFood
+        snakeHitNothingMask: numpy.ndarray = ~numpy.bitwise_or(
+            gameEndMask, snakeHitFoodMask
+        )
 
-        self.removeEndedGames(gameEndMask)
+        self.updateSnakeBodyCoordinates(nextSnakePosition, snakeHitNothingMask)
 
-        nextSnakePosition: numpy.ndarray = nextSnakePosition[~gameEndMask]
-        validSnakeHitFoodMask: numpy.ndarray = snakeHitFood[~gameEndMask]
-
-        self.updateSnakeBodyCoordinates(nextSnakePosition, validSnakeHitFoodMask)
-
-        return gameEndMask, snakeHitFood
+        return gameEndMask, snakeHitFoodMask, snakeHitNothingMask
 
     def updateSnakeBodyCoordinates(
         self,
         nextSnakePosition: numpy.ndarray,
-        validSnakeHitFoodMask: numpy.ndarray,
+        snakeHitNothingMask: numpy.ndarray,
     ) -> None:
 
-        masked_indicies: numpy.ndarray = numpy.where(~validSnakeHitFoodMask)[0]
-        masked_currentBodyEndIndicies: numpy.ndarray = self.currentBodyEndIndex[
-            ~validSnakeHitFoodMask
+        hitNothingMaskedIndicies: numpy.ndarray = numpy.where(snakeHitNothingMask)[0]
+        maskedCurrentBodyEndIndicies: numpy.ndarray = self.currentBodyEndIndex[
+            snakeHitNothingMask
         ]
 
-        self.snakeBodyLocation[masked_indicies, masked_currentBodyEndIndicies] = [0, 0]
+        self.snakeBodyLocation[
+            hitNothingMaskedIndicies, maskedCurrentBodyEndIndicies
+        ] = [0, 0]
 
-        self.currentBodyEndIndex += validSnakeHitFoodMask
+        self.currentBodyEndIndex += snakeHitNothingMask
         self.snakeBodyLocation = numpy.hstack(
             (nextSnakePosition, self.snakeBodyLocation[:, :-1, :])
         )
