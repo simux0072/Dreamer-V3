@@ -19,9 +19,12 @@ class Environment:
         ] = 0
 
     def update(self, moves: list[int]) -> None:
+        oldSnakeEndIndicies: numpy.ndarray = self.snake.currentBodyEndIndex.copy()
         gameEndMask, snakeHitFoodMask, snakeHitNothingMask = self.snake.moveSnakeBody(
             moves
         )
+        self.updateStateSpace()
+
         # TODO: check if all games have ended
         # TODO: update the gameState element
         # TODO: remove the last body part for evey snakeHitNOthingMask element.
@@ -46,3 +49,9 @@ class Environment:
         ] = 0
 
         return numpy.array((0))
+
+    def removeEndedGames(self, gameEndMask: numpy.ndarray) -> None:
+        self.stateSpace = self.stateSpace[~gameEndMask]
+        self.snake.snakeBodyLocation = self.snake.snakeBodyLocation[~gameEndMask]
+        self.snake.foodLocation = self.snake.foodLocation[~gameEndMask]
+        self.snake.currentBodyEndIndex = self.snake.currentBodyEndIndex[~gameEndMask]
