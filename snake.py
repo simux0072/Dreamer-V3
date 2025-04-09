@@ -127,7 +127,7 @@ class Snake:
 
     def moveSnakeBody(
         self, moveDirection: list[int]
-    ) -> tuple[numpy.ndarray, numpy.ndarray, numpy.ndarray]:
+    ) -> tuple[numpy.ndarray, numpy.ndarray]:
 
         nextSnakePosition: numpy.ndarray = (
             self.snakeBodyLocation[:, 0] + DIRECTIONS[moveDirection]
@@ -138,30 +138,26 @@ class Snake:
             nextSnakePosition[:, 0] == self.foodLocation[:]
         ).all(-1)
 
-        snakeHitNothingMask: numpy.ndarray = ~numpy.bitwise_or(
-            gameEndMask, snakeHitFoodMask
-        )
+        self.updateSnakeBodyCoordinates(nextSnakePosition, snakeHitFoodMask)
 
-        self.updateSnakeBodyCoordinates(nextSnakePosition, snakeHitNothingMask)
-
-        return gameEndMask, snakeHitFoodMask, snakeHitNothingMask
+        return gameEndMask, snakeHitFoodMask
 
     def updateSnakeBodyCoordinates(
         self,
         nextSnakePosition: numpy.ndarray,
-        snakeHitNothingMask: numpy.ndarray,
+        snakeHitFoodMask: numpy.ndarray,
     ) -> None:
 
-        hitNothingMaskedIndicies: numpy.ndarray = numpy.where(snakeHitNothingMask)[0]
+        hitNothingMaskedIndicies: numpy.ndarray = numpy.where(~snakeHitFoodMask)[0]
         maskedCurrentBodyEndIndicies: numpy.ndarray = self.currentBodyEndIndex[
-            snakeHitNothingMask
+            ~snakeHitFoodMask
         ]
 
         self.snakeBodyLocation[
             hitNothingMaskedIndicies, maskedCurrentBodyEndIndicies
         ] = [0, 0]
 
-        self.currentBodyEndIndex += snakeHitNothingMask
+        self.currentBodyEndIndex += ~snakeHitFoodMask
         self.snakeBodyLocation = numpy.hstack(
             (nextSnakePosition, self.snakeBodyLocation[:, :-1, :])
         )
