@@ -1,7 +1,5 @@
 import unittest
-
 import numpy
-
 from snake import Snake
 
 
@@ -165,11 +163,11 @@ class TestSnake(unittest.TestCase):
         self.snake_2.foodLocation[0] = self.snake_2.snakeBodyLocation[0, 0]
         self.snake_2.foodLocation[1] = self.snake_2.snakeBodyLocation[1, 0]
 
-        snakeHitFoodMask_1: numpy.ndarray = numpy.array([True, False])
-        snakeHitFoodMask_2: numpy.ndarray = numpy.array([True, True, False])
+        snakeHitFoodMaskMask_1: numpy.ndarray = numpy.array([True, False])
+        snakeHitFoodMaskMask_2: numpy.ndarray = numpy.array([True, True, False])
 
-        self.snake_1.generateCoordinatesFromMask(snakeHitFoodMask_1)
-        self.snake_2.generateCoordinatesFromMask(snakeHitFoodMask_2)
+        self.snake_1.generateCoordinatesFromMask(snakeHitFoodMaskMask_1)
+        self.snake_2.generateCoordinatesFromMask(snakeHitFoodMaskMask_2)
 
         self.assertTrue(
             equalNumpyArrays(
@@ -218,41 +216,6 @@ class TestSnake(unittest.TestCase):
             f"Snake 2 snakeHitSelfMask_2: {snakeHitSelfMask_2}",
         )
 
-    def test_removeEndedGames(self) -> None:
-        self.snake_1: Snake = Snake(self.gameDimensions_1, self.numberOfGames_1)
-        self.snake_2: Snake = Snake(self.gameDimensions_2, self.numberOfGames_2)
-
-        gameEnded_1: numpy.ndarray = numpy.array([True, False], dtype=bool)
-        gameEnded_2: numpy.ndarray = numpy.array([False, False, True])
-
-        changeSnake_1: numpy.ndarray = (
-            self.snake_1.snakeBodyLocation[1].copy().reshape(1, 20, 2)
-        )
-        changeSnake_2: numpy.ndarray = (
-            self.snake_2.snakeBodyLocation[:2].copy().reshape(2, 36, 2)
-        )
-
-        self.snake_1.removeEndedGames(gameEnded_1)
-        self.assertTrue(
-            self.snake_1.snakeBodyLocation.shape == changeSnake_1.shape,
-            f"Snake 1 snakeBodyLocation shape: {self.snake_1.snakeBodyLocation.shape}\nSnake 1 test snakeBodyLocation shape: {changeSnake_1.shape}",
-        )
-        self.assertTrue(
-            equalNumpyArrays(self.snake_1.snakeBodyLocation[:, 0], changeSnake_1[:, 0]),
-            f"Snake 1 first head coordinates: {self.snake_1.snakeBodyLocation[:, 0]}\nSnake 1 first test head coordinates: {changeSnake_1[:, 0]}",
-        )
-
-        self.snake_2.removeEndedGames(gameEnded_2)
-
-        self.assertTrue(
-            self.snake_2.snakeBodyLocation.shape == changeSnake_2.shape,
-            f"Snake 2 snakeBodyLocation shape: {self.snake_2.snakeBodyLocation.shape}\nSnake 2 test snakeBodyLocation shape: {changeSnake_2.shape}",
-        )
-        self.assertTrue(
-            equalNumpyArrays(self.snake_2.snakeBodyLocation[:, 0], changeSnake_2[:, 0]),
-            f"Snake 2 first head coordinates: {self.snake_2.snakeBodyLocation[:, 0]}\nSnake 2 first test head coordinates: {changeSnake_2[:, 0]}",
-        )
-
     def test_moveSnakeBody_hitWall(self) -> None:
         self.snake_1: Snake = Snake(self.gameDimensions_1, self.numberOfGames_1)
         self.snake_2: Snake = Snake(self.gameDimensions_2, self.numberOfGames_2)
@@ -283,7 +246,7 @@ class TestSnake(unittest.TestCase):
             [2, self.snake_1.gameDimensions[0] * self.snake_1.gameDimensions[1], 2]
         )
         snake_2_snakeBodyLocation_shape: numpy.ndarray = numpy.array(
-            [1, self.snake_2.gameDimensions[0] * self.snake_2.gameDimensions[1], 2]
+            [3, self.snake_2.gameDimensions[0] * self.snake_2.gameDimensions[1], 2]
         )
 
         self.assertTrue(
@@ -305,7 +268,7 @@ class TestSnake(unittest.TestCase):
             f"Snake 1 currentBodyEndIndex shape: {self.snake_1.currentBodyEndIndex.shape}",
         )
         self.assertTrue(
-            self.snake_2.currentBodyEndIndex.shape == (1,),
+            self.snake_2.currentBodyEndIndex.shape == (3,),
             f"Snake 2 currentBodyEndIndex shape: {self.snake_2.currentBodyEndIndex.shape}",
         )
 
@@ -326,16 +289,18 @@ class TestSnake(unittest.TestCase):
         self.snake_1.foodLocation[:] = [[1, 2], [2, 1]]
         self.snake_2.foodLocation[:] = [[1, 2], [2, 2], [2, 1]]
 
-        _, snake_1_snakeHitFood = self.snake_1.moveSnakeBody(snakeMove_1)
-        _, snake_2_snakeHitFood = self.snake_2.moveSnakeBody(snakeMove_2)
+        _, snake_1_snakeHitFoodMask = self.snake_1.moveSnakeBody(snakeMove_1)
+        _, snake_2_snakeHitFoodMask = self.snake_2.moveSnakeBody(snakeMove_2)
 
         self.assertTrue(
-            equalNumpyArrays(snake_1_snakeHitFood, numpy.array([True, False])),
-            f"Snake 1 HitFood: {snake_1_snakeHitFood}",
+            equalNumpyArrays(snake_1_snakeHitFoodMask, numpy.array([True, False])),
+            f"Snake 1 HitFood: {snake_1_snakeHitFoodMask}",
         )
         self.assertTrue(
-            equalNumpyArrays(snake_2_snakeHitFood, numpy.array([False, True, True])),
-            f"Snake 2 HitFood: {snake_2_snakeHitFood}",
+            equalNumpyArrays(
+                snake_2_snakeHitFoodMask, numpy.array([False, True, True])
+            ),
+            f"Snake 2 HitFood: {snake_2_snakeHitFoodMask}",
         )
 
         snake_1_snakeBodyLocation_shape: numpy.ndarray = numpy.array(
@@ -422,11 +387,11 @@ class TestSnake(unittest.TestCase):
         )
 
         snake_1_snakeBodyLocation_shape: numpy.ndarray = numpy.array(
-            [1, self.snake_1.gameDimensions[0] * self.snake_1.gameDimensions[1], 2]
+            [2, self.snake_1.gameDimensions[0] * self.snake_1.gameDimensions[1], 2]
         )
 
         snake_2_snakeBodyLocation_shape: numpy.ndarray = numpy.array(
-            [1, self.snake_2.gameDimensions[0] * self.snake_2.gameDimensions[1], 2]
+            [3, self.snake_2.gameDimensions[0] * self.snake_2.gameDimensions[1], 2]
         )
 
         self.assertTrue(
@@ -443,8 +408,8 @@ class TestSnake(unittest.TestCase):
             f"Snake 2 snakeBodyLocation shape: {self.snake_2.snakeBodyLocation.shape}",
         )
 
-        snake_1_foodLocation_shape: numpy.ndarray = numpy.array([1, 2])
-        snake_2_foodLocation_shape: numpy.ndarray = numpy.array([1, 2])
+        snake_1_foodLocation_shape: numpy.ndarray = numpy.array([2, 2])
+        snake_2_foodLocation_shape: numpy.ndarray = numpy.array([3, 2])
 
         self.assertTrue(
             equalNumpyArrays(
@@ -460,11 +425,11 @@ class TestSnake(unittest.TestCase):
         )
 
         self.assertTrue(
-            self.snake_1.currentBodyEndIndex.shape == (1,),
+            self.snake_1.currentBodyEndIndex.shape == (2,),
             f"Snake 1 currentBodyEndIndex shape: {self.snake_1.currentBodyEndIndex.shape}",
         )
         self.assertTrue(
-            self.snake_2.currentBodyEndIndex.shape == (1,),
+            self.snake_2.currentBodyEndIndex.shape == (3,),
             f"Snake 2 currentBodyEndIndex shape: {self.snake_2.currentBodyEndIndex.shape}",
         )
 
@@ -493,10 +458,10 @@ class TestSnake(unittest.TestCase):
         self.snake_2.foodLocation[:] = [0, 0]
         self.snake_2.foodLocation[0] = [2, 1]
 
-        snake_1_gameEnded, snake_1_snakeHitFood = self.snake_1.moveSnakeBody(
+        snake_1_gameEnded, snake_1_snakeHitFoodMask = self.snake_1.moveSnakeBody(
             snakeMove_1
         )
-        snake_2_gameEnded, snake_2_snakeHitFood = self.snake_2.moveSnakeBody(
+        snake_2_gameEnded, snake_2_snakeHitFoodMask = self.snake_2.moveSnakeBody(
             snakeMove_2
         )
 
@@ -510,12 +475,14 @@ class TestSnake(unittest.TestCase):
         )
 
         self.assertTrue(
-            equalNumpyArrays(snake_1_snakeHitFood, numpy.array([False, False])),
-            f"Snake 1 HitFood: {snake_1_snakeHitFood}",
+            equalNumpyArrays(snake_1_snakeHitFoodMask, numpy.array([False, False])),
+            f"Snake 1 HitFood: {snake_1_snakeHitFoodMask}",
         )
         self.assertTrue(
-            equalNumpyArrays(snake_2_snakeHitFood, numpy.array([True, False, False])),
-            f"Snake 2 HitFood: {snake_2_snakeHitFood}",
+            equalNumpyArrays(
+                snake_2_snakeHitFoodMask, numpy.array([True, False, False])
+            ),
+            f"Snake 2 HitFood: {snake_2_snakeHitFoodMask}",
         )
 
         snake_1_snakeBodyLocation_shape: numpy.ndarray = numpy.array(
@@ -523,7 +490,7 @@ class TestSnake(unittest.TestCase):
         )
 
         snake_2_snakeBodyLocation_shape: numpy.ndarray = numpy.array(
-            [1, self.snake_2.gameDimensions[0] * self.snake_2.gameDimensions[1], 2]
+            [3, self.snake_2.gameDimensions[0] * self.snake_2.gameDimensions[1], 2]
         )
 
         self.assertTrue(
@@ -541,7 +508,7 @@ class TestSnake(unittest.TestCase):
         )
 
         snake_1_foodLocation_shape: numpy.ndarray = numpy.array([2, 2])
-        snake_2_foodLocation_shape: numpy.ndarray = numpy.array([1, 2])
+        snake_2_foodLocation_shape: numpy.ndarray = numpy.array([3, 2])
 
         self.assertTrue(
             equalNumpyArrays(
@@ -561,7 +528,7 @@ class TestSnake(unittest.TestCase):
             f"Snake 1 currentBodyEndIndex shape: {self.snake_1.currentBodyEndIndex.shape}",
         )
         self.assertTrue(
-            self.snake_2.currentBodyEndIndex.shape == (1,),
+            self.snake_2.currentBodyEndIndex.shape == (3,),
             f"Snake 2 currentBodyEndIndex shape: {self.snake_2.currentBodyEndIndex.shape}",
         )
 
@@ -700,14 +667,14 @@ class TestSnake(unittest.TestCase):
         snake_2_snakeBodyLocation[2, 1] = [2, 3]
         snake_2_snakeBodyLocation[2, 2] = [2, 2]
 
-        snake_1_validSnakeHitFoodMask: numpy.ndarray = numpy.array([False, True])
-        snake_2_validSnakeHitFoodMask: numpy.ndarray = numpy.array([True, False, True])
+        snake_1_SnakeHitFoodMask: numpy.ndarray = numpy.array([False, True])
+        snake_2_SnakeHitFoodMask: numpy.ndarray = numpy.array([True, False, True])
 
         self.snake_1.updateSnakeBodyCoordinates(
-            snake_1_nextSnakePosition, snake_1_validSnakeHitFoodMask
+            snake_1_nextSnakePosition, snake_1_SnakeHitFoodMask
         )
         self.snake_2.updateSnakeBodyCoordinates(
-            snake_2_nextSnakePosition, snake_2_validSnakeHitFoodMask
+            snake_2_nextSnakePosition, snake_2_SnakeHitFoodMask
         )
 
         self.assertTrue(
