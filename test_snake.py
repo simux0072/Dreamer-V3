@@ -1,7 +1,5 @@
 import unittest
-
 import numpy
-
 from snake import Snake
 
 
