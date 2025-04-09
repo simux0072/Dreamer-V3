@@ -18,37 +18,46 @@ class Environment:
             :, 1 : (self.gameDimensions[1] - 2), 1 : (self.gameDimensions[0] - 2)
         ] = 0
 
-    def update(self, moves: list[int]) -> None:
+    def update(self, moves: list[int]) -> tuple[numpy.ndarray, numpy.ndarray, bool]:
         oldSnakeEndIndicies: numpy.ndarray = self.snake.currentBodyEndIndex.copy()
-        gameEndMask, snakeHitFoodMask, snakeHitNothingMask = self.snake.moveSnakeBody(
-            moves
-        )
+        gameEndMask, snakeHitFoodMask = self.snake.moveSnakeBody(moves)
+        self.removeFromStateSpace(oldSnakeEndIndicies, snakeHitFoodMask)
         self.updateStateSpace()
 
-        # TODO: check if all games have ended
-        # TODO: update the gameState element
-        # TODO: remove the last body part for evey snakeHitNOthingMask element.
-        # TODO: remove ended games
+        if gameEndMask.all():
+            return gameEndMask, snakeHitFoodMask, True
 
-    def updateStateSpace(
-        self,
-        coordinatesToErase: numpy.ndarray,
-        snakeHitFoodMask: numpy.ndarray,
-        gameEndMask: numpy.ndarray,
-    ) -> numpy.ndarray:
+        self.removeEndedGames(gameEndMask)
+        return gameEndMask, snakeHitFoodMask, False
 
-        snakeHitNothingMask: numpy.ndarray = ~numpy.bitwise_or(
-            gameEndMask, snakeHitFoodMask
-        )
-
-        maskedIndicies: numpy.ndarray = numpy.where(snakeHitNothingMask)[0]
-        maskedCoordinates: numpy.ndarray = coordinatesToErase[maskedIndicies]
+    def removeFromStateSpace(
+        self, oldSnakeEndIndicies: numpy.ndarray, snakeHitFoodMask
+    ) -> None:
+        snakeHitNothingMask: numpy.ndarray = ~snakeHitFoodMask
+        indiciesOfHitNothingMask: numpy.ndarray = numpy.where(snakeHitNothingMask)[0]
+        maskedOldSnakeEndIndicies: numpy.ndarray = oldSnakeEndIndicies[
+            indiciesOfHitNothingMask
+        ]
 
         self.stateSpace[
-            maskedIndicies, maskedCoordinates[:, 0], maskedCoordinates[:, 1]
+            indiciesOfHitNothingMask,
+            self.snake.snakeBodyLocation[
+                indiciesOfHitNothingMask, maskedOldSnakeEndIndicies, 0
+            ],
+            self.snake.snakeBodyLocation[
+                indiciesOfHitNothingMask, maskedOldSnakeEndIndicies, 1
+            ],
         ] = 0
 
-        return numpy.array((0))
+    def updateStateSpace(self) -> None:
+        indiciesForSnake: numpy.ndarray = numpy.arange(self.stateSpace.shape[0])
+        self.stateSpace[
+            numpy.arange(
+                indiciesForSnake,
+                self.snake.snakeBodyLocation[indiciesForSnake, 0, 0],
+                self.snake.snakeBodyLocation[indiciesForSnake, 0, 1],
+            )
+        ] = 2
 
     def removeEndedGames(self, gameEndMask: numpy.ndarray) -> None:
         self.stateSpace = self.stateSpace[~gameEndMask]
