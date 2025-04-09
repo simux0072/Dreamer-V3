@@ -157,7 +157,7 @@ class Snake:
             hitNothingMaskedIndicies, maskedCurrentBodyEndIndicies
         ] = [0, 0]
 
-        self.currentBodyEndIndex += ~snakeHitFoodMask
+        self.currentBodyEndIndex += snakeHitFoodMask
         self.snakeBodyLocation = numpy.hstack(
             (nextSnakePosition, self.snakeBodyLocation[:, :-1, :])
         )
