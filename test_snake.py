@@ -47,11 +47,11 @@ class TestSnake(unittest.TestCase):
 
         with self.assertRaises(Exception):
             self.snake_1.generateRandomLocations(
-                resetGame=True, snakeHitFood=numpy.array([True, False])
+                resetGame=True, snakeHitFoodMask=numpy.array([True, False])
             )
         with self.assertRaises(Exception):
             self.snake_2.generateRandomLocations(
-                resetGame=True, snakeHitFood=numpy.array([True, True, False])
+                resetGame=True, snakeHitFoodMask=numpy.array([True, True, False])
             )
 
         with self.assertRaises(Exception):
@@ -133,8 +133,8 @@ class TestSnake(unittest.TestCase):
         snakeHitFoodMask_1: numpy.ndarray = numpy.array([True, False])
         snakeHitFoodMask_2: numpy.ndarray = numpy.array([True, True, False])
 
-        self.snake_1.generateRandomLocations(snakeHitFood=snakeHitFoodMask_1)
-        self.snake_2.generateRandomLocations(snakeHitFood=snakeHitFoodMask_2)
+        self.snake_1.generateRandomLocations(snakeHitFoodMask=snakeHitFoodMask_1)
+        self.snake_2.generateRandomLocations(snakeHitFoodMask=snakeHitFoodMask_2)
 
         self.assertTrue(
             equalNumpyArrays(

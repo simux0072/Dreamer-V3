@@ -60,26 +60,26 @@ class Snake:
         self.generateRandomLocations(resetGame=True)
 
     def generateRandomLocations(
-        self, resetGame: bool = False, snakeHitFood: numpy.ndarray | None = None
+        self, resetGame: bool = False, snakeHitFoodMask: numpy.ndarray | None = None
     ) -> None:
         if resetGame:
-            if snakeHitFood is not None:
+            if snakeHitFoodMask is not None:
                 raise Exception(
-                    f"Trying to use resetGame logic for random location generation, when snakeHitFood is of Type: {type(snakeHitFood)}!"
+                    f"Trying to use resetGame logic for random location generation, when snakeHitFoodMask is of Type: {type(snakeHitFoodMask)}!"
                 )
 
             self.generateCoordinatesOnReset()
 
         else:
-            if snakeHitFood is None:
+            if snakeHitFoodMask is None:
                 raise Exception(
-                    f"Tried to generate coordinates when resetGame is {resetGame}, but snakeHitFood is of Type: {type(snakeHitFood)}!"
+                    f"Tried to generate coordinates when resetGame is {resetGame}, but snakeHitFoodMask is of Type: {type(snakeHitFoodMask)}!"
                 )
 
-            self.generateCoordinatesFromMask(snakeHitFood)
+            self.generateCoordinatesFromMask(snakeHitFoodMask)
 
-    def generateCoordinatesFromMask(self, snakeHitFood: numpy.ndarray):
-        for gameIndex in numpy.where(snakeHitFood)[0]:
+    def generateCoordinatesFromMask(self, snakeHitFoodMask: numpy.ndarray):
+        for gameIndex in numpy.where(snakeHitFoodMask)[0]:
             freeCoordinateMask: numpy.ndarray = (
                 ~(
                     self.possibleCoordinates[:, None]
