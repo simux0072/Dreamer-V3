@@ -7,6 +7,7 @@ class Environment:
         self.gameDimensions: list[int] = gameDimensions
         self.numberOfGames: int = numberOfGames
         self.snake: Snake = Snake(self.gameDimensions, self.numberOfGames)
+        self.reset()
 
     def reset(self) -> None:
         self.snake.resetGameState()
@@ -14,9 +15,7 @@ class Environment:
             (self.numberOfGames, self.gameDimensions[1], self.gameDimensions[0]),
             dtype=int,
         )
-        self.stateSpace[
-            :, 1 : (self.gameDimensions[1] - 2), 1 : (self.gameDimensions[0] - 2)
-        ] = 0
+        self.stateSpace[:, 1:-1, 1:-1] = 0
 
     def update(self, moves: list[int]) -> tuple[numpy.ndarray, numpy.ndarray, bool]:
         oldSnakeEndIndicies: numpy.ndarray = self.snake.currentBodyEndIndex.copy()
@@ -52,11 +51,9 @@ class Environment:
     def updateStateSpace(self) -> None:
         indiciesForSnake: numpy.ndarray = numpy.arange(self.stateSpace.shape[0])
         self.stateSpace[
-            numpy.arange(
-                indiciesForSnake,
-                self.snake.snakeBodyLocation[indiciesForSnake, 0, 0],
-                self.snake.snakeBodyLocation[indiciesForSnake, 0, 1],
-            )
+            indiciesForSnake,
+            self.snake.snakeBodyLocation[indiciesForSnake, 0, 0],
+            self.snake.snakeBodyLocation[indiciesForSnake, 0, 1],
         ] = 2
 
     def removeEndedGames(self, gameEndMask: numpy.ndarray) -> None:
