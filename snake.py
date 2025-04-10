@@ -119,11 +119,6 @@ class Snake:
         snakeHitSelf: numpy.ndarray = bodyComparison.all(-1).any(-1)
         return snakeHitSelf
 
-    def removeEndedGames(self, gameEnded: numpy.ndarray) -> None:
-        self.snakeBodyLocation = self.snakeBodyLocation[~gameEnded]
-        self.foodLocation = self.foodLocation[~gameEnded]
-        self.currentBodyEndIndex = self.currentBodyEndIndex[~gameEnded]
-
     def moveSnakeBody(
         self, moveDirection: list[int]
     ) -> tuple[numpy.ndarray, numpy.ndarray]:
