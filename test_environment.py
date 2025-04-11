@@ -17,8 +17,6 @@ class TestEnvironment(unittest.TestCase):
         self.gameDimensions_2: list[int] = [6, 6]
         self.numberOfGames_2: int = 3
 
-    # TODO: update
-
     def test_reset(self) -> None:
         environment_1: Environment = Environment(
             self.gameDimensions_1, self.numberOfGames_1
@@ -65,6 +63,71 @@ class TestEnvironment(unittest.TestCase):
             equalNumpyArrays(environment_2_stateSpace_numberOfOnes, numpy.array((60))),
             f"Environment 2 number of 0s in state space: {environment_2_stateSpace_numberOfOnes}",
         )
+
+    def test_update(self) -> None:
+        environment_1: Environment = Environment(
+            self.gameDimensions_1, self.numberOfGames_1
+        )
+        environment_2: Environment = Environment(
+            self.gameDimensions_2, self.numberOfGames_2
+        )
+
+        environment_1_moves: list[int] = [0, 3]
+        environment_2_moves: list[int] = [2, 1, 2]
+
+        # Env_1: hit nothing, hit food
+        # Env_2: hit wall, hit self, hit wall
+
+        environment_1.snake.foodLocation[:] = [1, 1]
+        environment_2.snake.foodLocation[:] = [1, 1]
+
+        environment_1.snake.currentBodyEndIndex = numpy.array([2, 1], dtype=int)
+        environment_2.snake.currentBodyEndIndex = numpy.array([0, 1, 2], dtype=int)
+
+        environment_1.snake.snakeBodyLocation[0, 0] = [2, 1]
+        environment_1.snake.snakeBodyLocation[0, 1] = [2, 2]
+        environment_1.snake.snakeBodyLocation[0, 2] = [2, 3]
+
+        environment_1.snake.snakeBodyLocation[1, 0] = [1, 2]
+        environment_1.snake.snakeBodyLocation[1, 0] = [1, 3]
+
+        environment_1.stateSpace[0, 2, 1] = 2
+        environment_1.stateSpace[0, 2, 2] = 2
+        environment_1.stateSpace[0, 2, 3] = 2
+        environment_1.stateSpace[1, 1, 2] = 2
+        environment_1.stateSpace[1, 1, 3] = 2
+
+        environment_2.snake.snakeBodyLocation[0, 0] = [4, 1]
+
+        environment_2.snake.snakeBodyLocation[1, 0] = [2, 2]
+        environment_2.snake.snakeBodyLocation[1, 0] = [2, 3]
+
+        environment_2.snake.snakeBodyLocation[2, 0] = [4, 2]
+        environment_2.snake.snakeBodyLocation[2, 1] = [3, 2]
+        environment_2.snake.snakeBodyLocation[2, 2] = [2, 2]
+
+        environment_2.stateSpace[0, 4, 1] = 2
+        environment_2.stateSpace[1, 2, 2] = 2
+        environment_2.stateSpace[1, 2, 3] = 2
+        environment_2.stateSpace[2, 4, 2] = 2
+        environment_2.stateSpace[2, 3, 2] = 2
+        environment_2.stateSpace[2, 2, 2] = 2
+
+        (
+            environment_1_gameEndMask,
+            environment_1_snakeHitFoodMask,
+            environment_1_allGamesEnded,
+        ) = environment_1.update(environment_1_moves)
+
+        (
+            environment_2_gameEndMask,
+            environment_2_snakeHitFoodMask,
+            environment_2_allGamesEnded,
+        ) = environment_2.update(environment_2_moves)
+
+        # TODO make the testing variables for all of the above.
+        # Check:
+        # Shapes, values for each component in stateSpace, compair gameEndMask, snakeHitFoodMask, allGamesEnded against testing values
 
     def test_removeFromStateSpace(self) -> None:
         environment_1: Environment = Environment(
