@@ -18,9 +18,13 @@ class Environment:
         self.stateSpace[:, 1:-1, 1:-1] = 0
 
     def update(self, moves: list[int]) -> tuple[numpy.ndarray, numpy.ndarray, bool]:
-        oldSnakeEndIndicies: numpy.ndarray = self.snake.currentBodyEndIndex.copy()
-        gameEndMask, snakeHitFoodMask = self.snake.moveSnakeBody(moves)
-        self.removeFromStateSpace(oldSnakeEndIndicies, snakeHitFoodMask)
+        nextSnakePositions: numpy.ndarray = self.snake.generateNextSnakePosition(moves)
+        gameEndMask, snakeHitFoodMask = self.snake.generateMasks(nextSnakePositions)
+
+        self.removeFromStateSpace(snakeHitFoodMask)
+
+        self.snake.updateSnakeBodyCoordinates(nextSnakePositions, snakeHitFoodMask)
+
         self.updateStateSpace()
 
         if gameEndMask.all():
@@ -29,12 +33,10 @@ class Environment:
         self.removeEndedGames(gameEndMask)
         return gameEndMask, snakeHitFoodMask, False
 
-    def removeFromStateSpace(
-        self, oldSnakeEndIndicies: numpy.ndarray, snakeHitFoodMask
-    ) -> None:
+    def removeFromStateSpace(self, snakeHitFoodMask: numpy.ndarray) -> None:
         snakeHitNothingMask: numpy.ndarray = ~snakeHitFoodMask
         indiciesOfHitNothingMask: numpy.ndarray = numpy.where(snakeHitNothingMask)[0]
-        maskedOldSnakeEndIndicies: numpy.ndarray = oldSnakeEndIndicies[
+        maskedOldSnakeEndIndicies: numpy.ndarray = self.snake.currentBodyEndIndex[
             indiciesOfHitNothingMask
         ]
 
