@@ -16,6 +16,16 @@ class Environment:
             dtype=int,
         )
         self.stateSpace[:, 1:-1, 1:-1] = 0
+        self.drawInitialSnake()
+        self.updateFoodLocation()
+
+    def drawInitialSnake(self) -> None:
+        indicies: numpy.ndarray = numpy.arange(self.stateSpace.shape[0])
+        self.stateSpace[
+            indicies,
+            self.snake.snakeBodyLocation[indicies, 0, 0],
+            self.snake.snakeBodyLocation[indicies, 0, 1],
+        ] = 2
 
     def update(self, moves: list[int]) -> tuple[numpy.ndarray, numpy.ndarray, bool]:
         nextSnakePositions: numpy.ndarray = self.snake.generateNextSnakePosition(moves)
@@ -25,6 +35,9 @@ class Environment:
 
         self.snake.updateSnakeBodyCoordinates(nextSnakePositions, snakeHitFoodMask)
 
+        if snakeHitFoodMask.any():
+            self.snake.generateCoordinatesFromMask(snakeHitFoodMask)
+            self.updateFoodLocation(snakeHitFoodMask)
         self.updateStateSpace()
 
         if gameEndMask.all():
@@ -32,6 +45,17 @@ class Environment:
 
         self.removeEndedGames(gameEndMask)
         return gameEndMask, snakeHitFoodMask, False
+
+    def updateFoodLocation(self, snakeHitFoodMask: numpy.ndarray | None = None) -> None:
+        if snakeHitFoodMask == None:
+            updateFoodIndicies: numpy.ndarray = numpy.arange(self.stateSpace.shape[0])
+        else:
+            updateFoodIndicies: numpy.ndarray = numpy.where(snakeHitFoodMask)[0]
+        self.stateSpace[
+            updateFoodIndicies,
+            self.snake.foodLocation[updateFoodIndicies, 0],
+            self.snake.foodLocation[updateFoodIndicies, 1],
+        ] = 3
 
     def removeFromStateSpace(self, snakeHitFoodMask: numpy.ndarray) -> None:
         snakeHitNothingMask: numpy.ndarray = ~snakeHitFoodMask
