@@ -75,10 +75,8 @@ class TestEnvironment(unittest.TestCase):
         environment_1_moves: list[int] = [0, 3]
         environment_2_moves: list[int] = [2, 1, 2]
 
-        # Env_1: hit nothing, hit food
-        # Env_2: hit wall, hit self, hit wall
-
-        environment_1.snake.foodLocation[:] = [1, 1]
+        environment_1.snake.foodLocation[0] = [3, 3]
+        environment_1.snake.foodLocation[1] = [1, 1]
         environment_2.snake.foodLocation[:] = [1, 1]
 
         environment_1.snake.currentBodyEndIndex = numpy.array([2, 1], dtype=int)
@@ -89,7 +87,7 @@ class TestEnvironment(unittest.TestCase):
         environment_1.snake.snakeBodyLocation[0, 2] = [2, 3]
 
         environment_1.snake.snakeBodyLocation[1, 0] = [1, 2]
-        environment_1.snake.snakeBodyLocation[1, 0] = [1, 3]
+        environment_1.snake.snakeBodyLocation[1, 1] = [1, 3]
 
         environment_1.stateSpace[0, 2, 1] = 2
         environment_1.stateSpace[0, 2, 2] = 2
@@ -100,7 +98,7 @@ class TestEnvironment(unittest.TestCase):
         environment_2.snake.snakeBodyLocation[0, 0] = [4, 1]
 
         environment_2.snake.snakeBodyLocation[1, 0] = [2, 2]
-        environment_2.snake.snakeBodyLocation[1, 0] = [2, 3]
+        environment_2.snake.snakeBodyLocation[1, 1] = [2, 3]
 
         environment_2.snake.snakeBodyLocation[2, 0] = [4, 2]
         environment_2.snake.snakeBodyLocation[2, 1] = [3, 2]
@@ -125,9 +123,104 @@ class TestEnvironment(unittest.TestCase):
             environment_2_allGamesEnded,
         ) = environment_2.update(environment_2_moves)
 
-        # TODO make the testing variables for all of the above.
-        # Check:
-        # Shapes, values for each component in stateSpace, compair gameEndMask, snakeHitFoodMask, allGamesEnded against testing values
+        environment_1_stateSpaceShape: numpy.ndarray = numpy.array([2, 4, 5])
+        environment_1_gameEndMask_test: numpy.ndarray = numpy.array([False, False])
+        environment_1_snakeHitFoodMask_test: numpy.ndarray = numpy.array([False, True])
+        environment_1_allGamesEnded_test: bool = False
+
+        environment_2_stateSpaceShape: numpy.ndarray = numpy.array([3, 6, 6])
+        environment_2_gameEndMask_test: numpy.ndarray = numpy.array([True, True, True])
+        environment_2_snakeHitFoodMask_test: numpy.ndarray = numpy.array(
+            [False, False, False]
+        )
+        environment_2_allGamesEnded_test: bool = True
+
+        self.assertTrue(
+            equalNumpyArrays(
+                environment_1.stateSpace.shape, environment_1_stateSpaceShape
+            ),
+            f"Environment 1 State space shape: {environment_1.stateSpace.shape}",
+        )
+        self.assertTrue(
+            equalNumpyArrays(environment_1_gameEndMask, environment_1_gameEndMask_test),
+            f"Environment 1 Game End Mask: {environment_1_gameEndMask}",
+        )
+        self.assertTrue(
+            equalNumpyArrays(
+                environment_1_snakeHitFoodMask, environment_1_snakeHitFoodMask_test
+            ),
+            f"Environment 1 Snake Hit Food Mask: {environment_1_snakeHitFoodMask}",
+        )
+        self.assertTrue(
+            environment_1_allGamesEnded == environment_1_allGamesEnded_test,
+            f"Environment 1 All Games Ended value: {environment_1_allGamesEnded}",
+        )
+
+        self.assertTrue(
+            equalNumpyArrays(
+                environment_2.stateSpace.shape, environment_2_stateSpaceShape
+            ),
+            f"Environment 2 State space shape: {environment_2.stateSpace.shape}",
+        )
+        self.assertTrue(
+            equalNumpyArrays(environment_2_gameEndMask, environment_2_gameEndMask_test),
+            f"Environment 2 Game End Mask: {environment_2_gameEndMask}",
+        )
+        self.assertTrue(
+            equalNumpyArrays(
+                environment_2_snakeHitFoodMask, environment_2_snakeHitFoodMask_test
+            ),
+            f"Environment 2 Snake Hit Food Mask: {environment_2_snakeHitFoodMask}",
+        )
+        self.assertTrue(
+            environment_2_allGamesEnded == environment_2_allGamesEnded_test,
+            f"Environment 2 All Games Ended value: {environment_2_allGamesEnded}",
+        )
+        self.assertTrue(
+            environment_1.stateSpace[0, 2, 3] == 0,
+            f"Environment 1 State Space value at coordinates (0, 2, 3): {environment_1.stateSpace[0, 2, 3]}",
+        )
+        self.assertTrue(
+            environment_1.stateSpace[0, 1, 1] == 2,
+            f"Environment 1 State Space value at coordinates (0, 1, 1): {environment_1.stateSpace[0, 1, 1]}",
+        )
+        self.assertTrue(
+            environment_1.stateSpace[1, 1, 1] == 2,
+            f"Environment 1 State Space value at coordinates (1, 1, 1): {environment_1.stateSpace[1, 1, 1]}",
+        )
+        self.assertTrue(
+            environment_1.stateSpace[1, 1, 2] == 2,
+            f"Environment 1 State Space value at coordinates (1, 1, 2): {environment_1.stateSpace[1, 1, 2]}",
+        )
+        self.assertTrue(
+            environment_1.stateSpace[1, 1, 3] == 2,
+            f"Environment 1 State Space value at coordinates (1, 1, 3): {environment_1.stateSpace[1, 1, 3]}",
+        )
+
+        self.assertTrue(
+            environment_2.stateSpace[0, 4, 1] == 0,
+            f"Environment 2 State Space value at coordinates (0, 4, 1): {environment_2.stateSpace[0, 4, 1]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[0, 5, 1] == 2,
+            f"Environment 2 State Space value at coordinates (0, 5, 1): {environment_2.stateSpace[0, 5, 1]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[1, 2, 2] == 2,
+            f"Environment 2 State Space value at coordinates (1, 2, 2): {environment_2.stateSpace[1, 2, 2]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[1, 2, 3] == 2,
+            f"Environment 2 State Space value at coordinates (1, 2, 3): {environment_2.stateSpace[1, 2, 3]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[2, 5, 2] == 2,
+            f"Environment 2 State Space value at coordinates (2, 5, 2): {environment_2.stateSpace[2, 5, 2]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[2, 2, 2] == 0,
+            f"Environment 2 State Space value at coordinates (2, 2, 2): {environment_2.stateSpace[2, 2, 2]}",
+        )
 
     def test_removeFromStateSpace(self) -> None:
         environment_1: Environment = Environment(
@@ -137,13 +230,9 @@ class TestEnvironment(unittest.TestCase):
             self.gameDimensions_2, self.numberOfGames_2
         )
 
-        environment_1_oldSnakeEndIndicies: numpy.ndarray = numpy.array(
-            [1, 2], dtype=int
-        )
+        environment_1.snake.currentBodyEndIndex = numpy.array([1, 2], dtype=int)
+        environment_2.snake.currentBodyEndIndex = numpy.array([2, 0, 0], dtype=int)
         environment_1_snakeHitFoodMask: numpy.ndarray = numpy.array([True, False])
-        environment_2_oldSnakeEndIndicies: numpy.ndarray = numpy.array(
-            [2, 0, 0], dtype=int
-        )
         environment_2_snakeHitFoodMask: numpy.ndarray = numpy.array(
             [False, True, False]
         )
@@ -160,13 +249,9 @@ class TestEnvironment(unittest.TestCase):
         environment_2.snake.snakeBodyLocation[1, 0] = [4, 1]
         environment_2.snake.snakeBodyLocation[2, 0] = [2, 4]
 
-        environment_1.removeFromStateSpace(
-            environment_1_oldSnakeEndIndicies, environment_1_snakeHitFoodMask
-        )
+        environment_1.removeFromStateSpace(environment_1_snakeHitFoodMask)
 
-        environment_2.removeFromStateSpace(
-            environment_2_oldSnakeEndIndicies, environment_2_snakeHitFoodMask
-        )
+        environment_2.removeFromStateSpace(environment_2_snakeHitFoodMask)
 
         self.assertTrue(
             environment_1.stateSpace[0, 3, 3] == 2,
