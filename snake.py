@@ -119,22 +119,11 @@ class Snake:
         snakeHitSelf: numpy.ndarray = bodyComparison.all(-1).any(-1)
         return snakeHitSelf
 
-    def moveSnakeBody(
-        self, moveDirection: list[int]
-    ) -> tuple[numpy.ndarray, numpy.ndarray]:
-
+    def generateNextSnakePosition(self, moveDirection: list[int]) -> numpy.ndarray:
         nextSnakePosition: numpy.ndarray = (
             self.snakeBodyLocation[:, 0] + DIRECTIONS[moveDirection]
         ).reshape(self.numberOfGames, 1, 2)
-
-        gameEndMask: numpy.ndarray = self.generateGameEndMask(nextSnakePosition)
-        snakeHitFoodMask: numpy.ndarray = (
-            nextSnakePosition[:, 0] == self.foodLocation[:]
-        ).all(-1)
-
-        self.updateSnakeBodyCoordinates(nextSnakePosition, snakeHitFoodMask)
-
-        return gameEndMask, snakeHitFoodMask
+        return nextSnakePosition
 
     def updateSnakeBodyCoordinates(
         self,
@@ -156,7 +145,9 @@ class Snake:
             (nextSnakePosition, self.snakeBodyLocation[:, :-1, :])
         )
 
-    def generateGameEndMask(self, nextSnakePosition: numpy.ndarray) -> numpy.ndarray:
+    def generateMasks(
+        self, nextSnakePosition: numpy.ndarray
+    ) -> tuple[numpy.ndarray, numpy.ndarray]:
         updatedGameDimensions: list[int] = [
             self.gameDimensions[0] - 1,
             self.gameDimensions[1] - 1,
@@ -173,4 +164,8 @@ class Snake:
             snakeHitWallMask, snakeHitSelfMask
         )
 
-        return gameEndMask
+        snakeHitFoodMask: numpy.ndarray = (
+            nextSnakePosition[:, 0] == self.foodLocation[:]
+        ).all(-1)
+
+        return gameEndMask, snakeHitFoodMask
