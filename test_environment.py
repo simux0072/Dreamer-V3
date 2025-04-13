@@ -261,6 +261,38 @@ class TestEnvironment(unittest.TestCase):
             f"Environment 2 State Space value at coordinates (2, 2, 2): {environment_2.stateSpace[2, 2, 2]}",
         )
 
+        self.assertTrue(
+            equalNumpyArrays(environment_1.snake.foodLocation[0], numpy.array([3, 3])),
+            f"Environment 1 Food Location at 0: {environment_1.snake.foodLocation[0]}",
+        )
+        self.assertTrue(
+            equalNumpyArrays(environment_1.snake.foodLocation[1], numpy.array([1, 1]))
+            == False,
+            f"Environment 1 Food Location at 1: {environment_1.snake.foodLocation[1]}",
+        )
+        self.assertTrue(
+            equalNumpyArrays(environment_2.snake.foodLocation[0], numpy.array([1, 1])),
+            f"Environment 2 Food Location at 0: {environment_2.snake.foodLocation[0]}",
+        )
+        self.assertTrue(
+            equalNumpyArrays(environment_2.snake.foodLocation[1], numpy.array([1, 1])),
+            f"Environment 2 Food Location at 0: {environment_2.snake.foodLocation[0]}",
+        )
+        self.assertTrue(
+            equalNumpyArrays(environment_2.snake.foodLocation[2], numpy.array([1, 1])),
+            f"Environment 2 Food Location at 0: {environment_2.snake.foodLocation[0]}",
+        )
+
+        self.assertTrue(
+            environment_1.stateSpace[
+                1,
+                environment_1.snake.foodLocation[1, 0],
+                environment_1.snake.foodLocation[1, 1],
+            ]
+            == 3,
+            f"Environment 1 State Space Value at New Food Location at 1: {environment_1.stateSpace[1, environment_1.snake.foodLocation[1, 0], environment_1.snake.foodLocation[1, 1]]}\nEnvironment 1 New Food Location at 1: {environment_1.snake.foodLocation[1]}",
+        )
+
     def test_updateFoodLocation_Array(self) -> None:
         environment_1: Environment = Environment(
             self.gameDimensions_1, self.numberOfGames_1
