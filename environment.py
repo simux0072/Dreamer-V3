@@ -47,10 +47,10 @@ class Environment:
         return gameEndMask, snakeHitFoodMask, False
 
     def updateFoodLocation(self, snakeHitFoodMask: numpy.ndarray | None = None) -> None:
-        if snakeHitFoodMask == None:
-            updateFoodIndicies: numpy.ndarray = numpy.arange(self.stateSpace.shape[0])
-        else:
+        if type(snakeHitFoodMask) == numpy.ndarray:
             updateFoodIndicies: numpy.ndarray = numpy.where(snakeHitFoodMask)[0]
+        else:
+            updateFoodIndicies: numpy.ndarray = numpy.arange(self.stateSpace.shape[0])
         self.stateSpace[
             updateFoodIndicies,
             self.snake.foodLocation[updateFoodIndicies, 0],
