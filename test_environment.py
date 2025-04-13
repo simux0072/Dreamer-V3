@@ -64,6 +64,45 @@ class TestEnvironment(unittest.TestCase):
             f"Environment 2 number of 0s in state space: {environment_2_stateSpace_numberOfOnes}",
         )
 
+    def test_drawInitialSnake(self) -> None:
+        environment_1: Environment = Environment(
+            self.gameDimensions_1, self.numberOfGames_1
+        )
+        environment_2: Environment = Environment(
+            self.gameDimensions_2, self.numberOfGames_2
+        )
+
+        environment_1.snake.snakeBodyLocation[0, 0] = [2, 2]
+        environment_1.snake.snakeBodyLocation[1, 0] = [3, 1]
+
+        environment_2.snake.snakeBodyLocation[0, 0] = [1, 1]
+        environment_2.snake.snakeBodyLocation[1, 0] = [2, 3]
+        environment_2.snake.snakeBodyLocation[2, 0] = [2, 1]
+
+        environment_1.drawInitialSnake()
+        environment_2.drawInitialSnake()
+
+        self.assertTrue(
+            environment_1.stateSpace[0, 2, 2] == 2,
+            f"Environment 1 State Space value at location (0, 2, 2): {environment_1.stateSpace[0, 2, 2]}",
+        )
+        self.assertTrue(
+            environment_1.stateSpace[1, 3, 1] == 2,
+            f"Environment 1 State Space value at location (1, 3, 1): {environment_1.stateSpace[1, 3, 1]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[0, 1, 1] == 2,
+            f"Environment 2 State Space value at location (0, 1, 1): {environment_2.stateSpace[0, 1, 1]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[1, 2, 3] == 2,
+            f"Environment 2 State Space value at location (1, 2, 3): {environment_2.stateSpace[1, 2, 3]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[2, 2, 1] == 2,
+            f"Environment 2 State Space value at location (2, 2, 1): {environment_2.stateSpace[2, 2, 1]}",
+        )
+
     def test_update(self) -> None:
         environment_1: Environment = Environment(
             self.gameDimensions_1, self.numberOfGames_1
@@ -222,6 +261,90 @@ class TestEnvironment(unittest.TestCase):
             f"Environment 2 State Space value at coordinates (2, 2, 2): {environment_2.stateSpace[2, 2, 2]}",
         )
 
+    def test_updateFoodLocation_Array(self) -> None:
+        environment_1: Environment = Environment(
+            self.gameDimensions_1, self.numberOfGames_1
+        )
+        environment_2: Environment = Environment(
+            self.gameDimensions_2, self.numberOfGames_2
+        )
+
+        environment_1.snake.foodLocation[0] = [2, 2]
+        environment_1.snake.foodLocation[1] = [3, 1]
+
+        environment_2.snake.foodLocation[0] = [1, 1]
+        environment_2.snake.foodLocation[1] = [2, 3]
+        environment_2.snake.foodLocation[2] = [2, 1]
+
+        environment_1.stateSpace[1, 3, 1] = 0
+        environment_2.stateSpace[2, 2, 1] = 0
+
+        environment_1_snakeHitFoodMask: numpy.ndarray = numpy.array([True, False])
+        environment_2_snakeHitFoodMask: numpy.ndarray = numpy.array([True, True, False])
+
+        environment_1.updateFoodLocation(environment_1_snakeHitFoodMask)
+        environment_2.updateFoodLocation(environment_2_snakeHitFoodMask)
+
+        self.assertTrue(
+            environment_1.stateSpace[0, 2, 2] == 3,
+            f"Environment 1 State Space value at location (0, 2, 2): {environment_1.stateSpace[0, 2, 2]}",
+        )
+        self.assertTrue(
+            environment_1.stateSpace[1, 3, 1] == 0,
+            f"Environment 1 State Space value at location (1, 3, 1): {environment_1.stateSpace[1, 3, 1]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[0, 1, 1] == 3,
+            f"Environment 2 State Space value at location (0, 1, 1): {environment_2.stateSpace[0, 1, 1]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[1, 2, 3] == 3,
+            f"Environment 2 State Space value at location (1, 2, 3): {environment_2.stateSpace[1, 2, 3]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[2, 2, 1] == 0,
+            f"Environment 2 State Space value at location (2, 2, 1): {environment_2.stateSpace[2, 2, 1]}",
+        )
+
+    def test_upateFoodLocation_None(self) -> None:
+        environment_1: Environment = Environment(
+            self.gameDimensions_1, self.numberOfGames_1
+        )
+        environment_2: Environment = Environment(
+            self.gameDimensions_2, self.numberOfGames_2
+        )
+
+        environment_1.snake.foodLocation[0] = [2, 2]
+        environment_1.snake.foodLocation[1] = [3, 1]
+
+        environment_2.snake.foodLocation[0] = [1, 1]
+        environment_2.snake.foodLocation[1] = [2, 3]
+        environment_2.snake.foodLocation[2] = [2, 1]
+
+        environment_1.updateFoodLocation()
+        environment_2.updateFoodLocation()
+
+        self.assertTrue(
+            environment_1.stateSpace[0, 2, 2] == 3,
+            f"Environment 1 State Space value at location (0, 2, 2): {environment_1.stateSpace[0, 2, 2]}",
+        )
+        self.assertTrue(
+            environment_1.stateSpace[1, 3, 1] == 3,
+            f"Environment 1 State Space value at location (1, 3, 1): {environment_1.stateSpace[1, 3, 1]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[0, 1, 1] == 3,
+            f"Environment 2 State Space value at location (0, 1, 1): {environment_2.stateSpace[0, 1, 1]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[1, 2, 3] == 3,
+            f"Environment 2 State Space value at location (1, 2, 3): {environment_2.stateSpace[1, 2, 3]}",
+        )
+        self.assertTrue(
+            environment_2.stateSpace[2, 2, 1] == 3,
+            f"Environment 2 State Space value at location (2, 2, 1): {environment_2.stateSpace[2, 2, 1]}",
+        )
+
     def test_removeFromStateSpace(self) -> None:
         environment_1: Environment = Environment(
             self.gameDimensions_1, self.numberOfGames_1
@@ -236,6 +359,10 @@ class TestEnvironment(unittest.TestCase):
         environment_2_snakeHitFoodMask: numpy.ndarray = numpy.array(
             [False, True, False]
         )
+
+        environment_1.stateSpace[1, 2, 2] = 0
+        environment_2.stateSpace[0, 2, 4] = 0
+        environment_2.stateSpace[2, 2, 4] = 0
 
         environment_1.stateSpace[0, 3, 3] = 2
         environment_1.stateSpace[1, 2, 2] = 2
