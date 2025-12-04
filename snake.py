@@ -116,7 +116,7 @@ class Snake:
         bodyComparison: numpy.ndarray = (
             firstElementExpanded == self.snakeBodyLocation[:, 1:]
         )
-        snakeHitSelf: numpy.ndarray = bodyComparison.all(-1).any(-1)
+        snakeHitSelf = bodyComparison.all(-1).any(-1)
         return snakeHitSelf
 
     def generateNextSnakePosition(self, moveDirection: list[int]) -> numpy.ndarray:
@@ -156,7 +156,7 @@ class Snake:
             nextSnakePosition[:, 0] % updatedGameDimensions == 0
         )
 
-        snakeHitWallMask: numpy.ndarray = snakeHitWallEquality.any(-1)
+        snakeHitWallMask = snakeHitWallEquality.any(-1)
 
         snakeHitSelfMask: numpy.ndarray = self.findSnakeHitSelf(nextSnakePosition)
 
