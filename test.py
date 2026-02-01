@@ -1,11 +1,27 @@
 import torch
 
-gru = torch.nn.GRU(input_size=2049, hidden_size=1024, num_layers=16)
-input = torch.randn((3, 2, 2049))
+decive = "cuda" if torch.cuda.is_available() else "cpu"
 
-h0 = torch.zeros((3, 2, 1024))
+layer = torch.nn.TransformerEncoderLayer(
+    d_model=1024,
+    nhead=8,
+    activation=torch.nn.functional.gelu,
+    batch_first=True,
+    dim_feedforward=512,
+    norm_first=True,
+).cuda()
 
-output, hn = gru(input)
-print(output.shape)
-print(hn.shape)
-print((output[-1] - hn[-1]).sum())
+encoder = torch.nn.TransformerEncoder(layer, num_layers=12)
+
+input = torch.rand((64, 128, 1024)).cuda()
+
+import time
+
+start = time.time()
+
+encoder_output = encoder(input)
+
+end = time.time() - start
+print(f"End time: {end}")
+print(f"Shape: {encoder_output.shape}")
+print(f"Output diff: {encoder_output - input}")
