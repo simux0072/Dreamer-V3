@@ -15,9 +15,9 @@ dependencies = [
     "pillow==12.0.0",
     "setuptools==78.1.0",
     "sympy==1.14.0",
-    "torch==2.11.0.dev20251217+rocm7.1",
-    "torchvision==0.25.0.dev20251218+rocm7.1",
-    "triton-rocm==3.6.0+git8fedd49b",
+    "torch==2.11.0.dev20260204+rocm7.1",
+    "triton-rocm==3.6.0+git9844da95",
+    "torchvision==0.25.0.dev20260205+rocm7.1",
     "typing-extensions==4.15.0",
 ]
 
@@ -28,3 +28,6 @@ prerelease = "allow"
 name = "pytorch-rocm"
 url = "https://download.pytorch.org/whl/nightly/rocm7.1"
 explicit = false
+[tool.uv.sources]
+torch = { index = "pytorch-rocm" }
+torchvision = { index = "pytorch-rocm" }
