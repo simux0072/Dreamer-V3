@@ -21,6 +21,7 @@ dependencies = [
     "typing-extensions==4.15.0",
     "black>=26.1.0",
     "pytest>=9.0.2",
+    "wandb>=0.24.2",
 ]
 
 [tool.uv]
