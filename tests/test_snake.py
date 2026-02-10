@@ -2,7 +2,6 @@ import unittest
 import numpy
 from snake import Snake
 
-
 def makeFoodSameAsHead(snake: Snake):
     for gameIndex in range(snake.numberOfGames):
         snake.foodLocation[gameIndex] = snake.snakeBodyLocation[gameIndex, 0]

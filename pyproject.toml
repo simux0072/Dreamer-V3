@@ -19,6 +19,8 @@ dependencies = [
     "triton-rocm==3.6.0+git9844da95",
     "torchvision==0.25.0.dev20260205+rocm7.1",
     "typing-extensions==4.15.0",
+    "black>=26.1.0",
+    "pytest>=9.0.2",
 ]
 
 [tool.uv]

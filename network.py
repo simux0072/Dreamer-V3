@@ -1,8 +1,9 @@
 import torch
 
 class Dreamer_V3(torch.nn.Module):
-    def __init__(self) -> None:
+    def __init__(self, symlog_model: torch.nn.Module) -> None:
         super().__init__()
+        self.symlog = symlog_model
         #Initial image input size: 20x20
         # Use CNNs for parsing the image into latent space
         self.encoder = torch.nn.Sequential(
@@ -35,11 +36,16 @@ class Dreamer_V3(torch.nn.Module):
 
     def forward(self):
         pass
+    def symlog_transform(self, input: torch.Tensor) -> torch.Tensor:
+        transformed_input = self.symlog(input)
+        return transformed_input
 
     def test_encoder(self, input: torch.Tensor) -> torch.Tensor:
-        output = self.encoder(input)
+        transformed_input = self.symlog_transform(input)
+        output = self.encoder(transformed_input)
         return output
     
     def test_decoder(self, input: torch.Tensor) -> torch.Tensor:
-        output = self.decoder(input)
+        symlog_input = self.symlog(input)
+        output = self.decoder(symlog_input)
         return output
