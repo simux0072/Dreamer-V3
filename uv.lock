@@ -121,6 +121,7 @@ dependencies = [
     { name = "sympy" },
     { name = "torch" },
     { name = "torchvision" },
+    { name = "tqdm" },
     { name = "triton-rocm" },
     { name = "typing-extensions" },
     { name = "wandb" },
@@ -142,6 +143,7 @@ requires-dist = [
     { name = "sympy", specifier = "==1.14.0" },
     { name = "torch", specifier = "==2.11.0.dev20260204+rocm7.1", index = "https://download.pytorch.org/whl/nightly/rocm7.1" },
     { name = "torchvision", specifier = "==0.25.0.dev20260205+rocm7.1", index = "https://download.pytorch.org/whl/nightly/rocm7.1" },
+    { name = "tqdm", specifier = ">=4.67.1" },
     { name = "triton-rocm", specifier = "==3.6.0+git9844da95" },
     { name = "typing-extensions", specifier = "==4.15.0" },
     { name = "wandb", specifier = ">=0.24.2" },
@@ -656,6 +658,17 @@ wheels = [
     { url = "https://download-r2.pytorch.org/whl/nightly/rocm7.1/torchvision-0.25.0.dev20260205%2Brocm7.1-cp313-cp313t-manylinux_2_28_x86_64.whl" },
     { url = "https://download-r2.pytorch.org/whl/nightly/rocm7.1/torchvision-0.25.0.dev20260205%2Brocm7.1-cp314-cp314-manylinux_2_28_x86_64.whl" },
     { url = "https://download-r2.pytorch.org/whl/nightly/rocm7.1/torchvision-0.25.0.dev20260205%2Brocm7.1-cp314-cp314t-manylinux_2_28_x86_64.whl" },
+]
+
+[[package]]
+name = "tqdm"
+version = "4.67.1"
+source = { registry = "https://download.pytorch.org/whl/nightly/rocm7.1" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+]
+wheels = [
+    { url = "https://download.pytorch.org/whl/nightly/tqdm-4.67.1-py3-none-any.whl" },
 ]
 
 [[package]]
